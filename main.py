@@ -37,6 +37,18 @@ def main():
     with open(path, "w", encoding="utf-8", newline="") as handle:
         handle.write(text)
     os.chmod(path, 0o644)
+    data = text.encode("utf-8")
+    with open(path, "rb") as handle:
+        raw = handle.read()
+    if raw != data:
+        raise SystemExit("read-back bytes do not match written entry")
+    decoded = raw.decode("utf-8")
+    if decoded != text:
+        raise SystemExit("read-back text does not match written entry")
+    if "\n" in decoded or "\r" in decoded:
+        raise SystemExit("entry must be a single line")
+    if any(ord(ch) < 0x20 for ch in decoded):
+        raise SystemExit("entry must not contain control characters")
 
 
 if __name__ == "__main__":
